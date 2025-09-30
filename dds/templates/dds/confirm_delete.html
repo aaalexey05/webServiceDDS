@@ -1,0 +1,28 @@
+{% extends "dds/base.html" %}
+{% block title %}Удалить запись{% endblock %}
+{% block content %}
+<h3 class="mb-3">Удалить запись #{{ object.id }}?</h3>
+<button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmModal">Удалить</button>
+<a class="btn btn-secondary" href="{% url 'record-list' %}">Отмена</a>
+
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Подтверждение удаления</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">Удалить запись #{{ object.id }} без возможности восстановления?</div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+        <form method="post">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">Удалить</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  </div>
+{% endblock %}
+
+

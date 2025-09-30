@@ -1,0 +1,91 @@
+{% extends "dds/base.html" %}
+{% block title %}{{ view.object|default_if_none:"Новая запись" }}{% endblock %}
+{% block content %}
+<h3 class="mb-3">{{ view.object|default_if_none:"Новая запись" }}</h3>
+{% if form.non_field_errors %}
+  <div class="alert alert-danger">
+    {{ form.non_field_errors }}
+  </div>
+{% endif %}
+<form method="post" class="row g-3">
+  {% csrf_token %}
+  <div class="col-md-3">
+    <label class="form-label">Дата</label>
+    {{ form.created_at }}
+    {{ form.created_at.errors }}
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">Статус</label>
+    {{ form.status }}
+    {{ form.status.errors }}
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">Тип</label>
+    <select name="cf_type" id="id_cf_type" class="form-select">
+      <option value="">---------</option>
+      {% for t in form.fields.cf_type.queryset %}
+        <option value="{{ t.id }}" {% if form.instance.cf_type_id == t.id or form.data.cf_type == t.id|stringformat:'s' %}selected{% endif %}>{{ t.name }}</option>
+      {% endfor %}
+    </select>
+    {{ form.cf_type.errors }}
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">Категория</label>
+    <select name="category" id="id_category" class="form-select">
+      <option value="">---------</option>
+      {% for c in form.fields.category.queryset %}
+        <option value="{{ c.id }}" data-type="{{ c.cf_type_id }}" {% if form.instance.category_id == c.id or form.data.category == c.id|stringformat:'s' %}selected{% endif %}>{{ c.name }}</option>
+      {% endfor %}
+    </select>
+    {{ form.category.errors }}
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">Подкатегория</label>
+    <select name="subcategory" id="id_subcategory" class="form-select">
+      <option value="">---------</option>
+      {% for sc in form.fields.subcategory.queryset %}
+        <option value="{{ sc.id }}" data-category="{{ sc.category_id }}" {% if form.instance.subcategory_id == sc.id or form.data.subcategory == sc.id|stringformat:'s' %}selected{% endif %}>{{ sc.name }}</option>
+      {% endfor %}
+    </select>
+    {{ form.subcategory.errors }}
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">Сумма</label>
+    {{ form.amount }}
+    {{ form.amount.errors }}
+  </div>
+  <div class="col-12">
+    <label class="form-label">Комментарий</label>
+    {{ form.comment }}
+    {{ form.comment.errors }}
+  </div>
+  <div class="col-12">
+    <button type="submit" class="btn btn-primary">Сохранить</button>
+    <a class="btn btn-secondary" href="{% url 'record-list' %}">Назад</a>
+  </div>
+</form>
+
+<script>
+  const typeSelect = document.getElementById('id_cf_type');
+  const categorySelect = document.getElementById('id_category');
+  const subcategorySelect = document.getElementById('id_subcategory');
+
+  function filterCategories() {
+    const t = typeSelect.value;
+    [...categorySelect.options].forEach(o => { if (!o.value) return; o.hidden = t && o.dataset.type !== t; });
+    if (categorySelect.selectedOptions[0]?.hidden) categorySelect.value = '';
+    filterSubcategories();
+  }
+  function filterSubcategories() {
+    const c = categorySelect.value;
+    [...subcategorySelect.options].forEach(o => { if (!o.value) return; o.hidden = c && o.dataset.category !== c; });
+    if (subcategorySelect.selectedOptions[0]?.hidden) subcategorySelect.value = '';
+  }
+  typeSelect?.addEventListener('change', filterCategories);
+  categorySelect?.addEventListener('change', filterSubcategories);
+  filterCategories();
+  filterSubcategories();
+</script>
+{% endblock %}
+
+
